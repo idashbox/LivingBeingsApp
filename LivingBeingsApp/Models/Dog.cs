@@ -1,15 +1,11 @@
-﻿using Avalonia.Threading;
-using System;
+﻿using System;
 
 namespace LivingBeingsApp.Models
 {
     public class Dog : LivingBeing
     {
-        public event Action? OnBark;
 
-        public Dog() : base(40)
-        {
-        }
+        public Dog() : base(40) { }
 
         public override void Move()
         {
@@ -23,14 +19,7 @@ namespace LivingBeingsApp.Models
 
         public void Bark()
         {
-            if (Dispatcher.UIThread.CheckAccess())
-            {
-                OnBark?.Invoke();
-            }
-            else
-            {
-                Dispatcher.UIThread.InvokeAsync(() => OnBark?.Invoke());
-            }
+            RaiseActionMessage("Собака залаяла!");
         }
     }
 }

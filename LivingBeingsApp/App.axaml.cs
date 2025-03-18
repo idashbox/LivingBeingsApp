@@ -11,22 +11,24 @@ namespace LivingBeingsApp;
 
 public partial class App : Application
 {
+    public MainWindowViewModel MainWindowViewModel { get; private set; }
+
     public override void Initialize()
     {
-        AvaloniaXamlLoader.Load(this); // Загружаем XAML
+        AvaloniaXamlLoader.Load(this);
     }
 
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Отключаем дублирование валидаций для Avalonia и CommunityToolkit
             DisableAvaloniaDataAnnotationValidation();
 
-            // Устанавливаем главное окно приложения
+            MainWindowViewModel = new MainWindowViewModel();
+
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(), // Привязываем DataContext для MainWindow
+                DataContext = MainWindowViewModel,
             };
         }
 
@@ -35,11 +37,9 @@ public partial class App : Application
 
     private void DisableAvaloniaDataAnnotationValidation()
     {
-        // Получаем список плагинов для валидации
         var dataValidationPluginsToRemove =
             BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
 
-        // Удаляем каждый плагин
         foreach (var plugin in dataValidationPluginsToRemove)
         {
             BindingPlugins.DataValidators.Remove(plugin);

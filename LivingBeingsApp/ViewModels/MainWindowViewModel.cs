@@ -17,102 +17,64 @@ namespace LivingBeingsApp.ViewModels
             get => _selectedBeing;
             set
             {
-                if (!Dispatcher.UIThread.CheckAccess())
-                {
-                    Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        this.RaiseAndSetIfChanged(ref _selectedBeing, value);
-                        this.RaisePropertyChanged(nameof(IsPantherSelected));
-                    });
-                }
-                else
-                {
-                    this.RaiseAndSetIfChanged(ref _selectedBeing, value);
-                    this.RaisePropertyChanged(nameof(IsPantherSelected));
-                }
+                this.RaiseAndSetIfChanged(ref _selectedBeing, value);
+                this.RaisePropertyChanged(nameof(IsPantherSelected));
+                this.RaisePropertyChanged(nameof(IsDogSelected));
+                ActionMessage = string.Empty;
             }
         }
 
         public bool IsPantherSelected => SelectedBeing is Panther;
+        public bool IsDogSelected => SelectedBeing is Dog;
 
         public ReactiveCommand<Unit, Unit> MoveCommand { get; }
         public ReactiveCommand<Unit, Unit> StopCommand { get; }
         public ReactiveCommand<Unit, Unit> SoundCommand { get; }
         public ReactiveCommand<Unit, Unit> ClimbCommand { get; }
 
+        private string _actionMessage = " ";
+        public string ActionMessage
+        {
+            get => _actionMessage;
+            set => this.RaiseAndSetIfChanged(ref _actionMessage, value);
+        }
+
         public MainWindowViewModel()
         {
             Beings = new ObservableCollection<LivingBeing>
-        {
-            new Panther(),
-            new Dog(),
-            new Turtle()
-        };
+            {
+                new Panther(),
+                new Dog(),
+                new Turtle()
+            };
 
             MoveCommand = ReactiveCommand.Create(() =>
             {
-                if (SelectedBeing != null)
-                {
-                    // Если мы не в UI потоке, то используем InvokeAsync
-                    if (Dispatcher.UIThread.CheckAccess())
-                    {
-                        SelectedBeing.Move();
-                        this.RaisePropertyChanged(nameof(SelectedBeing)); // Уведомляем о смене объекта
-                    }
-                    else
-                    {
-                        Dispatcher.UIThread.InvokeAsync(() =>
-                        {
-                            SelectedBeing.Move();
-                            this.RaisePropertyChanged(nameof(SelectedBeing)); // Уведомляем о смене объекта
-                        });
-                    }
-                }
+                SelectedBeing?.Move();
             });
-
-
 
             StopCommand = ReactiveCommand.Create(() =>
             {
-                if (!Dispatcher.UIThread.CheckAccess())
-                {
-                    Dispatcher.UIThread.InvokeAsync(() => SelectedBeing?.Stop());
-                }
-                else
-                {
-                    SelectedBeing?.Stop();
-                }
+                SelectedBeing?.Stop();
             });
 
             SoundCommand = ReactiveCommand.Create(() =>
             {
-                if (!Dispatcher.UIThread.CheckAccess())
+                if (SelectedBeing is Panther p)
                 {
-                    Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        if (SelectedBeing is Panther p) p.Roar();
-                        else if (SelectedBeing is Dog d) d.Bark();
-                    });
+                    p.Roar();
                 }
-                else
+                else if (SelectedBeing is Dog d)
                 {
-                    if (SelectedBeing is Panther p) p.Roar();
-                    else if (SelectedBeing is Dog d) d.Bark();
+                    d.Bark();
                 }
             });
 
             ClimbCommand = ReactiveCommand.Create(() =>
             {
-                if (!Dispatcher.UIThread.CheckAccess())
+                if (SelectedBeing is Panther p)
                 {
-                    Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        if (SelectedBeing is Panther p) p.ClimbTree();
-                    });
-                }
-                else
-                {
-                    if (SelectedBeing is Panther p) p.ClimbTree();
+                    p.ClimbTree();
                 }
             });
         }

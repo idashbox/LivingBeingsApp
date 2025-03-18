@@ -1,12 +1,14 @@
 ﻿using Avalonia.Threading;
 using ReactiveUI;
 using System;
+using LivingBeingsApp.ViewModels;
 
 namespace LivingBeingsApp.Models
 {
-    public abstract class LivingBeing : ReactiveObject // Наследуем от ReactiveObject
+    public abstract class LivingBeing : ReactiveObject
     {
         private int _speed;
+        protected int MaxSpeed;
 
         public int Speed
         {
@@ -14,28 +16,39 @@ namespace LivingBeingsApp.Models
             protected set => SetSpeed(value);
         }
 
-        protected int MaxSpeed;
-
         protected LivingBeing(int maxSpeed)
         {
             MaxSpeed = maxSpeed;
         }
 
-        // Вспомогательный метод для безопасного обновления значения скорости на UI потоке
+        // Метод для установки скорости с проверкой потока
         protected async void SetSpeed(int value)
         {
             if (Dispatcher.UIThread.CheckAccess())
             {
                 _speed = value;
-                this.RaisePropertyChanged(nameof(Speed)); // Уведомляем о изменении свойства
+                this.RaisePropertyChanged(nameof(Speed));
             }
             else
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     _speed = value;
-                    this.RaisePropertyChanged(nameof(Speed)); // Уведомляем о изменении свойства
+                    this.RaisePropertyChanged(nameof(Speed));
                 });
+            }
+        }
+
+        public event Action<string>? OnActionMessage;
+
+        protected void RaiseActionMessage(string message)
+        {
+            var app = (App)App.Current!;
+            var viewModel = app.MainWindowViewModel;
+
+            if (viewModel != null)
+            {
+                viewModel.ActionMessage = message;
             }
         }
 

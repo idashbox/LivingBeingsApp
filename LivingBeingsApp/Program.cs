@@ -14,10 +14,8 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        // Настроим главный поток для ReactiveUI
         RxApp.MainThreadScheduler = AvaloniaScheduler.Instance;
 
-        // Стартуем приложение с этим жизненным циклом
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
     }
@@ -28,5 +26,5 @@ sealed class Program
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace()
-            .UseReactiveUI(); // Подключаем ReactiveUI
+            .UseReactiveUI();
 }
